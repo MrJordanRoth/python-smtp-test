@@ -32,5 +32,3 @@ This simple tool was created in Python to test SMTP services in field services.
 
 - Ensure you have the correct SMTP settings configured before running the tool.
 - If you encounter issues, check that your Python environment is set up correctly and all dependencies are installed.
-- If you see an error such as:
-
