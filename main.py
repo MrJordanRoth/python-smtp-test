@@ -3,14 +3,14 @@ import ssl
 import socket
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import PhotoImage
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # Function to establish connection to the SMTP server
 def test_smtp_server(host, port, use_tls, use_ssl, username=None, password=None, from_email="test@example.com", to_email="test@example.com"):
-    connection_log = []  # Log to track commands and connections
+    connection_log = []
     try:
-        # Create an SMTP connection with the appropriate encryption method
         connection_log.append(f"Attempting to connect to {host}:{port}")
         if use_ssl:
             connection_log.append("Using SSL encryption")
@@ -23,16 +23,13 @@ def test_smtp_server(host, port, use_tls, use_ssl, username=None, password=None,
                 connection_log.append("Starting TLS encryption")
                 server.starttls()
 
-        # Authenticate if credentials are provided
         if username and password:
             connection_log.append(f"Logging in as {username}")
             server.login(username, password)
 
-        # Successfully connected, now send a test email
         connection_log.append("Connection successful")
         result_message = f"Successfully connected to {host}:{port} with {'SSL' if use_ssl else 'TLS' if use_tls else 'No encryption'} encryption."
 
-        # Create a simple test email
         subject = "SMTP Test"
         body = "This is a test e-mail."
 
@@ -42,12 +39,10 @@ def test_smtp_server(host, port, use_tls, use_ssl, username=None, password=None,
         msg['Subject'] = subject
         msg.attach(MIMEText(body, 'plain'))
 
-        # Send email
         connection_log.append(f"Sending test email from {from_email} to {to_email}")
         server.sendmail(from_email, to_email, msg.as_string())
         result_message += f"\nTest email sent to {to_email}."
 
-        # Close the connection to the server
         connection_log.append("Closing connection")
         server.quit()
 
@@ -62,8 +57,7 @@ def test_smtp_server(host, port, use_tls, use_ssl, username=None, password=None,
     except Exception as e:
         return f"An unexpected error occurred: {e}\n" + "\n".join(connection_log)
 
-# The rest of the GUI implementation remains unchanged
-# GUI to get user input and display results
+# GUI logic
 def on_test_button_click():
     host = host_entry.get()
     port = port_entry.get()
@@ -97,10 +91,30 @@ def on_test_button_click():
     result_text.insert(tk.END, result)
     result_text.config(state=tk.DISABLED)
 
-# GUI setup remains unchanged
+def clear_message():
+    result_text.config(state=tk.NORMAL)
+    result_text.delete(1.0, tk.END)
+    result_text.config(state=tk.DISABLED)
+
+def reset_fields():
+    host_entry.delete(0, tk.END)
+    port_entry.delete(0, tk.END)
+    ssl_var.set(False)
+    tls_var.set(False)
+    auth_var.set(False)
+    username_entry.delete(0, tk.END)
+    password_entry.delete(0, tk.END)
+    from_email_entry.delete(0, tk.END)
+    to_email_entry.delete(0, tk.END)
+    clear_message()
+
+# GUI setup
 app = tk.Tk()
 app.title("SMTP Server Tester")
-app.geometry("500x500")
+app.geometry("500x600")
+# Cross‑platform icon using PNG
+icon = PhotoImage(file="email.png")
+app.wm_iconphoto(True, icon)
 
 # GUI elements
 tk.Label(app, text="SMTP Server (FQDN or IP):").grid(row=0, column=0, padx=10, pady=5, sticky="e")
@@ -122,15 +136,21 @@ auth_var = tk.BooleanVar()
 tk.Label(app, text="Authentication:").grid(row=4, column=0, padx=10, pady=5, sticky="e")
 tk.Checkbutton(app, text="Authenticate", variable=auth_var).grid(row=4, column=1, padx=10, pady=5, sticky="w")
 
+username_label = tk.Label(app, text="Username:")
+password_label = tk.Label(app, text="Password:")
 username_entry = tk.Entry(app, width=40)
 password_entry = tk.Entry(app, width=40, show="*")
 
 def toggle_auth_fields():
     if auth_var.get():
+        username_label.grid(row=5, column=0, padx=10, pady=5, sticky="e")
         username_entry.grid(row=5, column=1, padx=10, pady=5)
+        password_label.grid(row=6, column=0, padx=10, pady=5, sticky="e")
         password_entry.grid(row=6, column=1, padx=10, pady=5)
     else:
+        username_label.grid_forget()
         username_entry.grid_forget()
+        password_label.grid_forget()
         password_entry.grid_forget()
 
 auth_var.trace("w", lambda *args: toggle_auth_fields())
@@ -148,5 +168,11 @@ test_button.grid(row=9, column=0, columnspan=2, pady=10)
 
 result_text = tk.Text(app, width=60, height=10, wrap=tk.WORD, state=tk.DISABLED)
 result_text.grid(row=10, column=0, columnspan=2, padx=10, pady=5)
+
+clear_button = tk.Button(app, text="Clear Message", command=clear_message)
+clear_button.grid(row=11, column=0, padx=10, pady=5, sticky="e")
+
+reset_button = tk.Button(app, text="Reset All Fields", command=reset_fields)
+reset_button.grid(row=11, column=1, padx=10, pady=5, sticky="w")
 
 app.mainloop()
