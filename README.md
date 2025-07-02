@@ -4,8 +4,8 @@ This simple tool was created in Python to test SMTP services in field services.
 
 ## Installation  
 
-1. **Download and Extract**  
-   - Download the tool and extract the files to a folder on your device.  
+1. **Git clone*  
+   - Git clone.  
 
 2. **Install Dependencies**  
    - Open a terminal or command prompt and navigate to the extracted folder.  
