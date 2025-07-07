@@ -6,6 +6,19 @@ from tkinter import messagebox
 from tkinter import PhotoImage
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import sys
+import os
+
+# Function to find bundled files for PyInstaller
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 # Function to establish connection to the SMTP server
 def test_smtp_server(host, port, use_tls, use_ssl, username=None, password=None, from_email="test@example.com", to_email="test@example.com"):
@@ -112,8 +125,8 @@ def reset_fields():
 app = tk.Tk()
 app.title("SMTP Server Tester")
 app.geometry("500x600")
-# Cross‑platform icon using PNG
-icon = PhotoImage(file="email.png")
+# Cross‑platform icon using PNG with the resource_path function
+icon = PhotoImage(file=resource_path("email.png"))
 app.wm_iconphoto(True, icon)
 
 # GUI elements
